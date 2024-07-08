@@ -1,0 +1,6 @@
+---
+- hosts: dev
+  become: yes
+
+  roles:
+    - role: ericsysmin.chrony

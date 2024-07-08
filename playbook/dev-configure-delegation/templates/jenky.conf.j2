@@ -1,0 +1,12 @@
+<VirtualHost *:80>
+    ServerAdmin webmaster@jenky
+    ServerName jenky
+    ErrorLog logs/jenky-error.log
+    CustomLog logs/jenky-common.log common
+    DocumentRoot /var/www/vhosts/jenky/
+    <Directory /var/www/vhosts/jenky/>
+        Options +Indexes +FollowSymlinks +Includes
+        Order allow,deny
+        Allow from all
+    </Directory>
+</VirtualHost>

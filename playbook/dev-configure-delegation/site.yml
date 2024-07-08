@@ -1,0 +1,52 @@
+---
+- name: install and configure the httpd
+  hosts: dev
+  become: yes
+  tasks:
+    - name : install httpd
+      ansible.builtin.yum:
+        name: httpd
+        state: installed
+    - name: Start the service
+      ansible.builtin.service:
+        name: httpd
+        state: started
+        enabled: true
+    - name: tempalte server configure
+      template:
+        src: "templates/{{ inventory_hostname }}.conf.j2"
+        dest: /etc/httpd/conf.d/myconfig.conf
+        owner: root
+        group: root
+        mode: 0644
+      notify:
+        - restart httpd
+  handlers:
+    - name: restart httpd
+      service:
+        name: httpd
+        service: restarted
+
+- name: Deploy web service and disable proxy server
+  hosts: dev
+  become: true
+  tasks:
+    - name: stop appache proxy server
+      ansible.builtin.service:
+        name: httpd
+        state: stopped
+      delegate_to:  "{{item}}"
+      with_items: "{{groups['dev']}}"
+    - name: deploy webpage
+      template:
+        src: templates/index.html.j2
+        dest: /var/www/html/index.html
+        owner: apache
+        group: apache
+        mode: 0644
+    - name: start apache proxy server
+      ansible.builtin.service:
+        name: httpd
+        state: started
+      delegate_to: "{{item}}"
+      with_items: "{{groups['dev']}}"

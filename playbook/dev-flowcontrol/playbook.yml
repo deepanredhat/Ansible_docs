@@ -1,0 +1,33 @@
+---
+- hosts: dev
+  become: yes
+  vars:
+    db_package: mariadb-server
+    db_service: mariadb
+    db_users:
+        - db_admin
+        - db_user
+    configure_database_path: /etc/my.cnf
+    extra_packages:
+      -  mariadb-bench
+      -  mariadb-libs
+      -  mariadb-test
+
+  tasks:
+  - name: create the mariadb users
+    ansible.builtin.user:
+      name: "{{ item }}"
+    with_items: "{{ db_users }}"
+    when: inventory_hostname in groups['dev']
+
+  - name: install the database server
+    ansible.builtin.yum:
+      name: "{{ db_package }}"
+      state: present
+    when: db_package is defined
+
+  - name: configure the database software
+    include_tasks: configure_database.yml
+    vars:
+      extra_packages: "{{ extra_packages }}"
+    when: configure_database_path is defined

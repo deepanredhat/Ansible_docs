@@ -1,0 +1,18 @@
+---
+- hosts: dev
+  become: yes
+  vars:
+    web_package: http
+    db_package: mariadb-server
+    db_service: mariadb
+  tasks:
+    - name: install {{ web_package }} package
+      ansible.builtin.yum:
+        name: "{{ web_package }}"
+        state: latest
+      ignore_errors: yes
+
+    - name: install {{ db_package }} package
+      ansible.builtin.yum:
+        name: "{{ db_package }}"
+        state: latest

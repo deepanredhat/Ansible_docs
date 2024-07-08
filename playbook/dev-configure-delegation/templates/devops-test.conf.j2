@@ -1,0 +1,12 @@
+<VirtualHost *:80>
+    ServerAdmin webmaster@local
+    ServerName local
+    ErrorLog logs/local-error.log
+    CustomLog logs/local-common.log common
+    DocumentRoot /var/www/vhosts/local/
+    <Directory /var/www/vhosts/local/>
+        Options +Indexes +FollowSymlinks +Includes
+        Order allow,deny
+        Allow from all
+    </Directory>
+</VirtualHost>

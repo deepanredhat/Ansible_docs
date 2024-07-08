@@ -1,0 +1,22 @@
+---
+- hosts: dev
+  become: yes
+  tasks:
+    - name: include the configure mail.
+      include:
+        configure_mail.yml
+      when: inventory_hostname in groups['dev']
+
+  handlers:
+    - name: start_postfix
+      ansible.builtin.service:
+        name: postfix
+        state: started
+    - name: start_dovecot
+      ansible.builtin.service:
+        name: dovecot
+        state: started
+    - name: restart_postfix
+      ansible.builtin.service:
+        name: postfix
+        state: restarted

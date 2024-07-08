@@ -1,0 +1,35 @@
+---
+- name: Configure web server
+  hosts: dev
+  become: yes
+  vars:
+    rule: http
+  tasks:
+    - name: Include the variables from the yaml file
+      include_vars: vars/incl_variables.yml
+
+    - name: Include the environment file and set the variables
+      include_tasks: tasks/inclusions_environment.yml
+      vars:
+        package: httpd
+        service: httpd
+        svc_state: started
+
+    - name: install the firewall
+      ansible.builtin.yum:
+         name: "{{ firewall_pkg }}"
+         state: latest
+    - name: start the firewall
+      ansible.builtin.service:
+         name: firewalld
+         state: started
+         enabled: true
+    - name: open the port for {{ rule }}
+      ansible.posix.firewalld:
+         service: "{{ rule }}"
+         permanent: true
+         state: enabled
+    - name: create the index.html
+      ansible.builtin.copy:
+         content: "{{ ansible_fqdn }} has been customized using ansible on the {{ ansible_date_time.date }}\n"          
+         dest: /var/www/html/index.html

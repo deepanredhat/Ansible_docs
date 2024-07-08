@@ -1,0 +1,11 @@
+---
+- hosts: dev
+  become: yes
+  tasks:
+    - name: install the pkg and start the service
+      ansible.builtin.yum:
+        name: httpd
+        state: installed
+      register: install_result
+
+    - debug:  var=install_result

@@ -1,0 +1,30 @@
+---
+- hosts: dev
+  become: yes
+  vars:
+    web_package: http
+    db_package: mariadb-server
+    db_service: mariadb
+  tasks:
+    - block:
+        - name: Install {{ web_package }} package
+          ansible.builtin.yum:
+            name: "{{ web_package }}"
+            state: latest
+      rescue:
+        - name: install {{ db_package }} package
+          ansible.builtin.yum:
+            name: "{{ db_package }}"
+            state: latest
+      always:
+        - name: Start {{ db_service }} service
+          ansible.builtin.service:
+            name: "{{ db_service }}"
+            state: started
+        - name: check local time
+          command: date
+          register: command_result
+          changed_when: false
+        - name: print local time
+          debug:
+            var: command_result["stdout"]

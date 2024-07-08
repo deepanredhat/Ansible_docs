@@ -1,0 +1,27 @@
+---
+- name: install postfix
+  ansible.builtin.yum:
+    name: postfix
+    state: latest
+  tags:
+    - server
+  notify:
+    - start_postfix
+
+- name: install devcot
+  ansible.builtin.yum:
+    name: dovecot
+    state: latest
+  tags:
+    - client
+  notify:
+    - start_dovecot
+
+- name: copy the main.cf configuration
+  ansible.builtin.copy:
+    src: /home/dendhiajr/playbook/dev-tags/main.cf
+    dest: /etc/postfix/main.cf
+  tags:
+    - server
+  notify:
+    - restart_postfix

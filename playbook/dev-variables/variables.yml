@@ -1,0 +1,40 @@
+---
+- hosts: dev
+  become: yes
+  vars:
+    web_pkg: httpd
+    firewall_pkg: firewalld
+    rule: http
+  tasks:
+    - name: Required pkg to be installed
+      ansible.builtin.yum:
+        name:
+          - "{{ web_pkg }}"
+          - "{{ firewall_pkg }}"
+        state: latest
+
+    - name: The {{ firewall_service }} and {{ web_service }} service has been started and enabled
+      ansible.builtin.service: 
+        name: "{{ item }}" 
+        enabled: true 
+        state: restarted
+      loop:
+        - firewalld
+        - httpd
+
+    - name: copy the content
+      ansible.builtin.copy: content="welcome to robo" dest=/var/www/html/index.html
+
+    - name: The firewal port for {{ rule }} is open
+      ansible.posix.firewalld:
+        service: "{{ rule }}" 
+        permanent: true
+        state: enabled
+
+- hosts: local
+  become: false
+  tasks:
+    - name: Ensure the webserver is reachable
+      ansible.builtin.uri:
+        url: http://jenky
+        status_code: 200

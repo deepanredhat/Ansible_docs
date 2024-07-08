@@ -1,0 +1,16 @@
+---
+- hosts: dev
+  become: yes
+  tasks:
+    - name: Gather custom facts
+      ansible.builtin.setup:
+        filter: ansible_local
+
+    - name: install httpd
+      ansible.builtin.yum:
+        name: "{{ ansible_local.custom.general.package }}"
+        state: latest
+    - name: start the service
+      ansible.builtin.service:
+        name: "{{ ansible_local.custom.general.service }}"
+        state: started

@@ -1,0 +1,12 @@
+<VirtualHost *:80>
+    ServerAdmin webmaster@robo2
+    ServerName robo2
+    ErrorLog logs/robo2-error.log
+    CustomLog logs/robo2-common.log common
+    DocumentRoot /var/www/vhosts/robo2/
+    <Directory /var/www/vhosts/robo2/>
+        Options +Indexes +FollowSymlinks +Includes
+        Order allow,deny
+        Allow from all
+    </Directory>
+</VirtualHost>

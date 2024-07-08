@@ -1,0 +1,11 @@
+---
+- name: dev website configuraton
+  hosts: dev
+  become: yes
+  tasks:
+    - name: install the pkg
+      ansible.builtin.yum: name=httpd state=present
+    - name: copy index.html
+      ansible.builtin.copy: src=index.html dest=/var/www/html/index.html
+    - name: start the serice
+      ansible.builtin.service: name=httpd state=started enabled=true

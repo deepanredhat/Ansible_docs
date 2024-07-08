@@ -1,0 +1,21 @@
+---
+- hosts: dev
+  become: yes
+  vars:
+    remote_dir: /etc/ansible/facts.d
+    facts_file: custom.fact
+    facts_file_state: present
+  tasks:
+    - name: Create remote directory
+      ansible.builtin.file:
+        state: directory
+        recurse: yes
+        path: "{{ remote_dir }}"
+    - name: Install the new facts
+      ansible.builtin.copy:
+        src: "{{ facts_file }}"
+        dest: "{{ remote_dir }}"
+      
+    - name: Re-read facts after adding custom facts
+      ansible.builtin.setup:
+        filter: ansible_local

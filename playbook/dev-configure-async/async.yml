@@ -1,0 +1,31 @@
+---
+- name: longfiles async playbook
+  hosts: dev
+  become: yes
+
+  tasks:
+    - name: template long files script
+      template:
+        src:  templates/longfiles.j2
+        dest: /usr/local/bin/longfiles
+        owner: root
+        group: root
+        mode: 0755
+    - name: run longfiles script
+      command: "/usr/local/bin/longfiles {{ item }} /tmp/{{ item }}.file"
+      async: 110
+      poll: 0
+      with_items:
+        - foo
+        - bar
+        - baz
+      register: script_sleeper
+    - name: show script_sleeper value
+      debug:
+        var:  script_sleeper
+    - name: check the status of longfiles script
+      async_status: "jid={{ item.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 30
+      with_items: "{{ script_sleeper.results }}"

@@ -1,0 +1,42 @@
+---
+- name: installing mariabd
+  hosts: dev
+  become: yes
+  vars:
+    db_packages:
+      - mariadb-server
+      - python3-PyMySQL
+
+    db_service: mariadb
+    src_file: "/home/dendhiajr/playbook/dev-handlers/my.cnf"
+    dst_file: /etc/my.cnf
+  tasks:
+    - name: install {{ db_packages }} package
+      ansible.builtin.yum:
+        name: "{{ item }}"
+        state: latest
+      with_items: "{{ db_packages }}"
+      notify:
+        - start_service
+    - name: download and install {{ dst_file }}
+      ansible.builtin.copy:
+        src: "{{ src_file }}"
+        dest: "{{ dst_file }}"
+        force: yes
+      notify:
+        -  restart_service
+        -  set_password
+
+  handlers:
+    - name: start_service
+      service:
+        name: "{{ db_service }}"
+        state: started
+    - name: restart_service
+      service:
+        name: "{{ db_service }}"
+        state: restarted
+    - name: set_password
+      mysql_user:
+        name: root
+        password: redhat
